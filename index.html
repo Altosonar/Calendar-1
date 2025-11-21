@@ -1246,11 +1246,11 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="trade-open-date" class="form-label">Open Date</label>
-                            <input type="date" id="trade-open-date" class="form-input" value="">
+                            <input type="date" id="trade-open-date" class="form-input" value="2025-11-20">
                         </div>
                         <div class="form-group">
                             <label for="trade-exit-date" class="form-label">Exit Date</label>
-                            <input type="date" id="trade-exit-date" class="form-input" value="">
+                            <input type="date" id="trade-exit-date" class="form-input" value="2025-11-20">
                         </div>
                     </div>
                     
@@ -1419,7 +1419,7 @@
                     <button class="calendar-nav" id="prev-month">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <div class="calendar-title" id="current-month">February 2023</div>
+                    <div class="calendar-title" id="current-month">November 2025</div>
                     <button class="calendar-nav" id="next-month">
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -1437,7 +1437,7 @@
 <div id="day-details-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
-        <h3 class="modal-title" id="modal-date-title">Trades for February 1, 2023</h3>
+        <h3 class="modal-title" id="modal-date-title">Trades for November 20, 2025</h3>
         <div class="day-trades-list" id="day-trades-list">
             <!-- Day trades will be populated here -->
         </div>
@@ -1489,7 +1489,7 @@
     };
 
     // Calendar functionality
-    let currentDate = new Date(); // Set to current date instead of February 2023
+    let currentDate = new Date(2025, 10, 20); // Set to November 2025
     let selectedDayForTrade = null;
     let tradeToDelete = null;
 
@@ -1504,14 +1504,14 @@
         setupModal();
         
         // Set today's date as default for trade log
-        const today = new Date().toISOString().split('T')[0];
+        const today = "2025-11-20"; // Fixed to November 20, 2025
         document.getElementById('trade-open-date').value = today;
         document.getElementById('trade-exit-date').value = today;
         
         // Initialize notes character counter
         updateNotesCounter();
         
-        // Load sample data for current month instead of February 2023
+        // Load sample data for current month
         loadSampleData();
     });
 
@@ -2110,7 +2110,7 @@
         }
         
         // Add days of the month
-        const today = new Date();
+        const today = new Date(2025, 10, 20); // November 20, 2025
         const trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
         
         for (let day = 1; day <= daysInMonth; day++) {
@@ -2359,7 +2359,7 @@
         // Check if we already have data
         if (localStorage.getItem('futuresTrades')) return;
         
-        const today = new Date();
+        const today = new Date(2025, 10, 20); // November 20, 2025
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -2367,7 +2367,7 @@
         const sampleTrades = [];
         
         // Create sample data for a few random days in the current month
-        const sampleDays = [1, 3, 5, 8, 10, 15, 18, 22, 25]; // Some random days
+        const sampleDays = [1, 3, 5, 8, 10, 15, 18, 20, 22, 25]; // Some random days including Nov 20
         
         sampleDays.forEach(day => {
             if (day <= daysInMonth) {
