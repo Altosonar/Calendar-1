@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Journal Pro</title>
+    <title>Futures Trading Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* All the CSS styles remain exactly the same as before */
         :root {
             --primary: #4361ee;
             --primary-light: #4895ef;
             --primary-dark: #3a0ca3;
             --secondary: #7209b7;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --danger: #e63946;
             --light: #f8f9fa;
-            --dark: #1f2937;
-            --gray: #6b7280;
-            --light-gray: #e5e7eb;
-            --border: #d1d5db;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border: #dee2e6;
             --card-bg: #ffffff;
-            --body-bg: #f9fafb;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --radius: 8px;
+            --body-bg: #f5f7ff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
             --transition: all 0.3s ease;
             --input-bg: white;
             --input-border: var(--border);
@@ -33,19 +36,19 @@
             --primary-light: #4895ef;
             --primary-dark: #4361ee;
             --secondary: #7209b7;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --light: #374151;
-            --dark: #f9fafb;
-            --gray: #9ca3af;
-            --light-gray: #4b5563;
-            --border: #4b5563;
-            --card-bg: #1f2937;
-            --body-bg: #111827;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            --input-bg: #374151;
-            --input-border: #4b5563;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --danger: #e63946;
+            --light: #343a40;
+            --dark: #f8f9fa;
+            --gray: #adb5bd;
+            --light-gray: #495057;
+            --border: #495057;
+            --card-bg: #212529;
+            --body-bg: #121212;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            --input-bg: #343a40;
+            --input-border: #495057;
         }
         
         * {
@@ -68,11 +71,11 @@
             padding: 8px;
         }
         
-        .journal-container {
+        .calculator-container {
             width: 100%;
             max-width: 480px;
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 0;
             box-shadow: var(--shadow);
             overflow: hidden;
             height: 100vh;
@@ -81,10 +84,11 @@
             flex-direction: column;
             transition: var(--transition);
             margin: 0 auto;
+            padding: 8px;
         }
         
-        .journal-header {
-            background: var(--primary);
+        .calculator-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             padding: 20px 15px;
             text-align: center;
@@ -94,7 +98,7 @@
             position: relative;
         }
         
-        .journal-title {
+        .calculator-title {
             font-size: 22px;
             font-weight: 700;
             display: flex;
@@ -159,7 +163,7 @@
             font-size: 18px;
         }
 
-        .journal-content {
+        .calculator-content {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -198,6 +202,493 @@
             color: var(--primary);
         }
         
+        .input-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .input-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 400px) {
+             .two-column-layout {
+                 grid-template-columns: 1fr 1fr;
+             }
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .form-input, .form-select {
+            background: var(--input-bg);
+            color: var(--dark);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 16px;
+            width: 100%;
+            transition: var(--transition);
+            appearance: none;
+        }
+        
+        .input-with-unit {
+            display: flex;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            background: var(--input-bg);
+        }
+        
+        .input-with-unit input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 12px;
+            font-size: 16px;
+            color: var(--dark);
+            width: 100%;
+        }
+        
+        .input-with-unit .unit {
+            background: var(--light-gray);
+            padding: 10px 12px;
+            font-size: 15px;
+            color: var(--dark);
+            border-left: 1px solid var(--input-border);
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            min-width: 60px;
+            justify-content: center;
+        }
+        
+        .dark-mode .input-with-unit .unit {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        /* Results Display */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 400px) {
+             .results-grid {
+                 grid-template-columns: 1fr 1fr;
+             }
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .result-value.profit { color: var(--success); }
+        .result-value.loss { color: var(--danger); }
+        .result-value.risk-reward { color: var(--primary); }
+        .result-value.size { color: var(--secondary); }
+
+        .dashboard-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .dashboard-label {
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 15px;
+        }
+        
+        .dashboard-value {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 16px;
+        }
+        
+        .positive {
+            color: var(--success);
+        }
+        
+        .negative {
+            color: var(--danger);
+        }
+
+        .action-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Trade List */
+        .trade-list {
+            margin-top: 0;
+            padding: 0;
+            list-style: none;
+            max-height: calc(100vh - 350px);
+            overflow-y: auto;
+            border-top: 1px solid var(--border);
+        }
+
+        .trade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .trade-details {
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .trade-amount {
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .trade-info {
+            font-size: 14px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        .trade-type {
+            width: 40px;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .trade-type.Win {
+            background: rgba(76, 201, 240, 0.15);
+            color: var(--success);
+        }
+
+        .trade-type.Loss {
+            background: rgba(247, 37, 133, 0.15);
+            color: var(--danger);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        
+        .action-btn.delete:hover {
+            color: var(--danger);
+            background: rgba(230, 57, 70, 0.1);
+        }
+        
+        /* Strategy Section */
+        .strategy-section {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .strategy-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .strategy-stat {
+            text-align: center;
+        }
+        
+        .strategy-stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        
+        .strategy-stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .strategy-explanation {
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 20px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: var(--light-gray);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--primary) 100%);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        /* Trade Entry Form */
+        .trade-entry-form {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* PDF Buttons */
+        .pdf-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .pdf-button {
+            flex: 1;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pdf-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pdf-button.preview {
+            background: var(--primary);
+        }
+        
+        .pdf-button.download {
+            background: var(--success);
+        }
+        
+        /* Character Counter for Notes */
+        .notes-container {
+            position: relative;
+        }
+        
+        .character-counter {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 12px;
+            color: var(--gray);
+            background: var(--card-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .character-counter.warning {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        .character-counter.error {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: var(--light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Utility */
+        .hidden { display: none !important; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* Print Styles */
+        @media print {
+            .tab-navigation, .header-actions, .action-button, .pdf-button {
+                display: none !important;
+            }
+            
+            .calculator-container {
+                max-width: 100%;
+                box-shadow: none;
+                height: auto;
+            }
+            
+            .tab-content {
+                display: block !important;
+                padding: 10px;
+            }
+            
+            .input-card, .trade-entry-form {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+        }
+
         /* Calendar Styles */
         .calendar-header {
             display: flex;
@@ -230,7 +721,6 @@
             color: var(--dark);
         }
         
-        /* NEW: Compact calendar with trades inside boxes */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -316,298 +806,6 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Trade List */
-        .trade-list {
-            margin-top: 0;
-            padding: 0;
-            list-style: none;
-            max-height: calc(100vh - 350px);
-            overflow-y: auto;
-            border-top: 1px solid var(--border);
-        }
-
-        .trade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border);
-            transition: var(--transition);
-        }
-
-        .trade-details {
-            flex: 1;
-            padding: 0 10px;
-        }
-
-        .trade-amount {
-            font-weight: 700;
-            font-size: 17px;
-        }
-
-        .trade-info {
-            font-size: 14px;
-            color: var(--gray);
-            margin-top: 4px;
-        }
-
-        .trade-type {
-            width: 40px;
-            text-align: center;
-            padding: 8px 0;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .trade-type.Win {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-        }
-
-        .trade-type.Loss {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--gray);
-            font-size: 16px;
-            padding: 8px;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-        
-        .action-btn.delete:hover {
-            color: var(--danger);
-            background: rgba(239, 68, 68, 0.1);
-        }
-        
-        /* Stats Section */
-        .stats-section {
-            background: var(--primary);
-            color: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .stats-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .stats-stat {
-            text-align: center;
-        }
-        
-        .stats-stat-value {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 5px;
-        }
-        
-        .stats-stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .stats-explanation {
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-
-        /* Trade Entry Form */
-        .trade-entry-form {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 18px;
-            margin-bottom: 15px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .form-input, .form-select {
-            background: var(--input-bg);
-            color: var(--dark);
-            border: 1px solid var(--input-border);
-            border-radius: 6px;
-            padding: 10px 12px;
-            font-size: 16px;
-            width: 100%;
-            transition: var(--transition);
-            appearance: none;
-        }
-        
-        .input-with-unit {
-            display: flex;
-            border: 1px solid var(--input-border);
-            border-radius: 6px;
-            overflow: hidden;
-            width: 100%;
-            background: var(--input-bg);
-        }
-        
-        .input-with-unit input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px 12px;
-            font-size: 16px;
-            color: var(--dark);
-            width: 100%;
-        }
-        
-        .input-with-unit .unit {
-            background: var(--light-gray);
-            padding: 10px 12px;
-            font-size: 15px;
-            color: var(--dark);
-            border-left: 1px solid var(--input-border);
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            min-width: 60px;
-            justify-content: center;
-        }
-        
-        .dark-mode .input-with-unit .unit {
-            background: var(--light);
-            color: var(--dark);
-        }
-
-        .action-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .action-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Character Counter for Notes */
-        .notes-container {
-            position: relative;
-        }
-        
-        .character-counter {
-            position: absolute;
-            bottom: 8px;
-            right: 12px;
-            font-size: 12px;
-            color: var(--gray);
-            background: var(--card-bg);
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: var(--transition);
-        }
-        
-        .character-counter.warning {
-            color: var(--warning);
-            font-weight: 600;
-        }
-        
-        .character-counter.error {
-            color: var(--danger);
-            font-weight: 700;
-        }
-        
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: var(--dark);
-            color: var(--light);
-            text-align: center;
-            border-radius: 6px;
-            padding: 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 13px;
-            font-weight: normal;
-        }
-        
-        .tooltip .tooltiptext::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: var(--dark) transparent transparent transparent;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        
         /* Modal for Day Details */
         .modal {
             display: none;
@@ -654,16 +852,10 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        
-        /* Utility */
-        .hidden { display: none !important; }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="number"] { -moz-appearance: textfield; }
 
         /* Responsive breakpoint for mobile devices */
         @media (max-width: 480px) {
-            .journal-container {
+            .calculator-container {
                 height: 100vh;
                 max-height: 100vh;
             }
@@ -672,11 +864,11 @@
                 padding: 0;
             }
             
-            .journal-header {
+            .calculator-header {
                 padding: 15px 10px;
             }
             
-            .journal-title {
+            .calculator-title {
                 font-size: 18px;
             }
             
@@ -693,8 +885,12 @@
                 font-size: 16px;
             }
             
-            .trade-entry-form {
+            .input-card, .trade-entry-form {
                 padding: 15px;
+            }
+            
+            .result-value {
+                font-size: 24px;
             }
             
             .calendar-day {
@@ -719,11 +915,11 @@
 </head>
 <body>
 
-<div class="journal-container">
-    <header class="journal-header">
-        <h1 class="journal-title">
-            <i class="fas fa-calendar-alt"></i>
-            Trading Journal
+<div class="calculator-container">
+    <header class="calculator-header">
+        <h1 class="calculator-title">
+            <i class="fas fa-chart-line"></i>
+            Futures Trader Pro
         </h1>
         <div class="header-actions">
             <button class="header-btn" id="darkModeToggle" aria-label="Toggle Dark Mode">
@@ -733,23 +929,333 @@
     </header>
 
     <div class="tab-navigation">
-        <button class="tab-button active" data-tab="calendar-tab">
-            <i class="fas fa-calendar"></i>
-            <span>Calendar</span>
+        <button class="tab-button active" data-tab="strategy-tab">
+            <i class="fas fa-chess-knight"></i>
+            <span>Strategy</span>
         </button>
         <button class="tab-button" data-tab="add-trade-tab">
             <i class="fas fa-plus-circle"></i>
-            <span>Add Trade</span>
+            <span>Add a Trade</span>
         </button>
-        <button class="tab-button" data-tab="stats-tab">
-            <i class="fas fa-chart-bar"></i>
-            <span>Stats</span>
+        <button class="tab-button" data-tab="calendar-tab">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Calendar</span>
         </button>
     </div>
 
-    <div class="journal-content">
+    <div class="calculator-content">
+        <!-- Strategy Tab -->
+        <div class="tab-content active" id="strategy-tab">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-wallet"></i> Account Setup</h2>
+                <div class="input-card">
+                    <div class="form-group">
+                        <label for="account-capital" class="form-label"><i class="fas fa-piggy-bank"></i> Account Capital</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="account-capital" class="form-input" value="1200" min="0" step="100">
+                            <span class="unit">USD</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="risk-percentage" class="form-label"><i class="fas fa-exclamation-triangle"></i> Risk Per Trade (%)</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="risk-percentage" class="form-input" value="3" min="0.1" max="10" step="0.1">
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goal-profit" class="form-label"><i class="fas fa-trophy"></i> Goal Profit</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-profit" class="form-input" value="144" min="0" step="100">
+                            <span class="unit">USD</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-cogs"></i> Trading Strategy</h2>
+                <div class="input-card">
+                    <div class="two-column-layout">
+                        <div class="form-group">
+                            <label for="win-rate" class="form-label"><i class="fas fa-chart-line"></i> Win Rate (%)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="win-rate" class="form-input" value="37.5" min="1" max="99" step="1">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="risk-reward" class="form-label"><i class="fas fa-balance-scale"></i> Risk:Reward Ratio</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="risk-reward" class="form-input" value="3" min="0.5" max="10" step="0.1">
+                                <span class="unit">R:R</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-row">
+                        <span class="dashboard-label">Expected Value Per Trade</span>
+                        <span class="dashboard-value positive" id="expected-value">$18.00</span>
+                    </div>
+                    
+                    <div class="dashboard-row">
+                        <span class="dashboard-label">Risk Per Trade</span>
+                        <span class="dashboard-value" id="risk-per-trade">$36.00</span>
+                    </div>
+                    
+                    <div class="dashboard-row">
+                        <span class="dashboard-label">Reward Per Trade</span>
+                        <span class="dashboard-value positive" id="reward-per-trade">$108.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section" id="results-section">
+                <h2 class="section-title"><i class="fas fa-chart-area"></i> Goal Analysis</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title">Trades Needed</div>
+                        <div class="result-value" id="trades-needed">8</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Winning Trades</div>
+                        <div class="result-value profit" id="winning-trades">3</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Losing Trades</div>
+                        <div class="result-value loss" id="losing-trades">5</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Time (Days)</div>
+                        <div class="result-value size" id="time-days">1</div>
+                    </div>
+                </div>
+
+                <div class="input-card" style="margin-top: 15px;">
+                    <div class="dashboard-row">
+                        <span class="dashboard-label">Total Risk Capital</span>
+                        <span class="dashboard-value" id="total-risk">$180.00</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="dashboard-label">Account After Goal</span>
+                        <span class="dashboard-value positive" id="account-after-goal">$1,344.00</span>
+                    </div>
+                    <div class="dashboard-row">
+                        <span class="dashboard-label">Daily Profit</span>
+                        <span class="dashboard-value positive" id="daily-profit">$144.00</span>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Goal Progress</span>
+                        <span id="progress-percent">89.3%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 89.3%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="action-button" onclick="calculateGoal()">
+                <i class="fas fa-calculator"></i> Calculate Trading Plan
+            </button>
+        </div>
+
+        <!-- Add a Trade Tab -->
+        <div class="tab-content" id="add-trade-tab">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-plus-circle"></i> Log New Trade</h2>
+                <div class="trade-entry-form">
+                    <!-- Reordered form rows to match image exactly -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="asset-class-select" class="form-label">Asset Class</label>
+                            <select id="asset-class-select" class="form-select">
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="symbol-size-select" class="form-label">Symbol/Size</label>
+                            <select id="symbol-size-select" class="form-select">
+                                <!-- Options will be populated based on asset class selection -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trade-open-date" class="form-label">Open Date</label>
+                            <input type="date" id="trade-open-date" class="form-input" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-exit-date" class="form-label">Exit Date</label>
+                            <input type="date" id="trade-exit-date" class="form-input" value="">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trade-entry" class="form-label">Entry Price</label>
+                            <input type="number" id="trade-entry" class="form-input" value="19000" step="0.25">
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-exit" class="form-label">Exit Price</label>
+                            <input type="number" id="trade-exit" class="form-input" value="19025" step="0.25">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trade-direction" class="form-label">Direction</label>
+                            <select id="trade-direction" class="form-select">
+                                <option value="Long/Buy">Long/Buy</option>
+                                <option value="Short/Sell">Short/Sell</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-strategy" class="form-label">Strategy</label>
+                            <select id="trade-strategy" class="form-select">
+                                <option value="Up Trend/L.B">Up Trend/L.B</option>
+                                <option value="DN Trend/L.B">DN Trend/L.B</option>
+                                <option value="Double Top">Double Top</option>
+                                <option value="Double Bottom">Double Bottom</option>
+                                <option value="Res.Pullback">Res.Pullback</option>
+                                <option value="Sup.Pullback">Sup.Pullback</option>
+                                <option value="Pivot Reversal.">Pivot Reversal.</option>
+                                <option value="Fibonachi.61.8%">Fibonachi.61.8%</option>
+                                <option value="Fibonachi.50%">Fibonachi.50%</option>
+                                <option value="SMA-Crossover">SMA-Crossover</option>
+                                <option value="Reg.H&S/Bear">Reg.H&S/Bear</option>
+                                <option value="Inver.H&S/bull">Inver.H&S/bull</option>
+                                <option value="Rise Wedge/Bear">Rise Wedge/Bear</option>
+                                <option value="Fall Wedge/Bull">Fall Wedge/Bull</option>
+                                <option value="Flag Rise/Bull">Flag Rise/Bull</option>
+                                <option value="Flag Fall/Bear">Flag Fall/Bear</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="time-frame" class="form-label">Time Frame</label>
+                            <select id="time-frame" class="form-select">
+                                <option value="1 Min">TF: 1 Min</option>
+                                <option value="5 Min">TF: 5 Min</option>
+                                <option value="15 Min">TF: 15 Min</option>
+                                <option value="30 Min">TF: 30 Min</option>
+                                <option value="1 Hr">TF: 1 Hr</option>
+                                <option value="4 Hrs">TF: 4 Hrs</option>
+                                <option value="1 Day">TF: 1 Day</option>
+                                <option value="1 Month">TF: 1 Month</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-stop-loss" class="form-label">Stop Loss</label>
+                            <input type="number" id="trade-stop-loss" class="form-input" value="18975" step="0.25">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trade-status" class="form-label">Status</label>
+                            <select id="trade-status" class="form-select">
+                                <option value="Win">Win</option>
+                                <option value="Loss">Loss</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-rr" class="form-label">R:R Ratio</label>
+                            <select id="trade-rr" class="form-select">
+                                <option value="1:1">1:1</option>
+                                <option value="1:1.5">1:1.5</option>
+                                <option value="1:2">1:2</option>
+                                <option value="1:2.5">1:2.5</option>
+                                <option value="1:3" selected>1:3</option>
+                                <option value="1:3.5">1:3.5</option>
+                                <option value="1:4">1:4</option>
+                                <option value="1:4.5">1:4.5</option>
+                                <option value="1:5">1:5</option>
+                                <option value="1:5.5">1:5.5</option>
+                                <option value="1:6">1:6</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trade-contracts" class="form-label">Contracts</label>
+                            <input type="number" id="trade-contracts" class="form-input" value="1" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-commission" class="form-label">Commission</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="trade-commission" class="form-input" value="2.50" step="0.01">
+                                <span class="unit">USD</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trade-pnl" class="form-label">PnL $</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="trade-pnl" class="form-input" value="108" step="0.01">
+                                <span class="unit">USD</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-pnl-percent" class="form-label">PnL %</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="trade-pnl-percent" class="form-input" value="9.0" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group notes-container" style="flex: 2;">
+                            <label for="trade-notes" class="form-label tooltip">
+                                Notes
+                                <span class="tooltiptext">Maximum 100 characters. Keep notes short and focused.</span>
+                            </label>
+                            <textarea id="trade-notes" class="form-input" placeholder="Trade setup notes (max 100 characters)" rows="3" maxlength="100"></textarea>
+                            <div class="character-counter" id="notes-counter">100/100</div>
+                        </div>
+                    </div>
+                    
+                    <button class="action-button" onclick="logTrade()">
+                        <i class="fas fa-save"></i> Save Trade
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-book"></i> Trade History</h2>
+                <div class="trade-list-container">
+                    <ul class="trade-list" id="trade-history-list">
+                        <!-- Trade items will be inserted here by JavaScript -->
+                    </ul>
+                    <p id="no-trades-message" style="text-align: center; color: var(--gray); margin-top: 20px;">No trades logged yet.</p>
+                </div>
+                
+                <div class="pdf-buttons">
+                    <button class="pdf-button preview" onclick="previewPDF()">
+                        <i class="fas fa-eye"></i> Preview PDF
+                    </button>
+                    <button class="pdf-button download" onclick="downloadPDF()">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Calendar Tab -->
-        <div class="tab-content active" id="calendar-tab">
+        <div class="tab-content" id="calendar-tab">
             <div class="section">
                 <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Trading Calendar</h2>
                 
@@ -765,181 +1271,6 @@
                 
                 <div class="calendar-grid" id="calendar-days">
                     <!-- Calendar days will be populated by JavaScript -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Trade Tab -->
-        <div class="tab-content" id="add-trade-tab">
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-plus-circle"></i> Add New Trade</h2>
-                <div class="trade-entry-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="trade-date" class="form-label">Trade Date</label>
-                            <input type="date" id="trade-date" class="form-input" value="">
-                        </div>
-                        <div class="form-group">
-                            <label for="trade-symbol" class="form-label">Symbol</label>
-                            <select id="trade-symbol" class="form-select">
-                                <option value="ES">ES - E-mini S&P</option>
-                                <option value="NQ">NQ - Nasdaq-100</option>
-                                <option value="YM">YM - Dow Jones</option>
-                                <option value="CL">CL - Crude Oil</option>
-                                <option value="GC">GC - Gold</option>
-                                <option value="BTC">BTC - Bitcoin</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="trade-direction" class="form-label">Direction</label>
-                            <select id="trade-direction" class="form-select">
-                                <option value="Long">Long</option>
-                                <option value="Short">Short</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="trade-contracts" class="form-label">Contracts</label>
-                            <input type="number" id="trade-contracts" class="form-input" value="1" min="1">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="trade-entry" class="form-label">Entry Price</label>
-                            <input type="number" id="trade-entry" class="form-input" value="4500.25" step="0.25">
-                        </div>
-                        <div class="form-group">
-                            <label for="trade-exit" class="form-label">Exit Price</label>
-                            <input type="number" id="trade-exit" class="form-input" value="4505.50" step="0.25">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="trade-stop" class="form-label">Stop Loss</label>
-                            <input type="number" id="trade-stop" class="form-input" value="4495.00" step="0.25">
-                        </div>
-                        <div class="form-group">
-                            <label for="trade-target" class="form-label">Profit Target</label>
-                            <input type="number" id="trade-target" class="form-input" value="4515.00" step="0.25">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="trade-commission" class="form-label">Commission</label>
-                            <div class="input-with-unit">
-                                <input type="number" id="trade-commission" class="form-input" value="2.50" step="0.01">
-                                <span class="unit">USD</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="trade-fees" class="form-label">Fees</label>
-                            <div class="input-with-unit">
-                                <input type="number" id="trade-fees" class="form-input" value="1.25" step="0.01">
-                                <span class="unit">USD</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="trade-pnl" class="form-label">PnL $</label>
-                            <div class="input-with-unit">
-                                <input type="number" id="trade-pnl" class="form-input" value="108" step="0.01" readonly>
-                                <span class="unit">USD</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="trade-pnl-percent" class="form-label">PnL %</label>
-                            <div class="input-with-unit">
-                                <input type="number" id="trade-pnl-percent" class="form-input" value="9.0" step="0.1" readonly>
-                                <span class="unit">%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group notes-container" style="flex: 1;">
-                            <label for="trade-notes" class="form-label tooltip">
-                                Trade Notes
-                                <span class="tooltiptext">Add any notes about this trade (max 200 characters)</span>
-                            </label>
-                            <textarea id="trade-notes" class="form-input" placeholder="Trade setup, strategy, emotions, etc." rows="3" maxlength="200"></textarea>
-                            <div class="character-counter" id="notes-counter">200/200</div>
-                        </div>
-                    </div>
-                    
-                    <button class="action-button" onclick="saveTrade()">
-                        <i class="fas fa-save"></i> Save Trade
-                    </button>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-history"></i> Recent Trades</h2>
-                <div class="trade-list-container">
-                    <ul class="trade-list" id="trade-history-list">
-                        <!-- Trade items will be inserted here by JavaScript -->
-                    </ul>
-                    <p id="no-trades-message" style="text-align: center; color: var(--gray); margin-top: 20px;">No trades logged yet.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Tab -->
-        <div class="tab-content" id="stats-tab">
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Trading Statistics</h2>
-                
-                <div class="stats-section">
-                    <div class="stats-title">Performance Metrics</div>
-                    <div class="stats-grid">
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">74.3%</div>
-                            <div class="stats-stat-label">Win Rate</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">2.8</div>
-                            <div class="stats-stat-label">Avg R:R</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">$124</div>
-                            <div class="stats-stat-label">Avg Win</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">-$45</div>
-                            <div class="stats-stat-label">Avg Loss</div>
-                        </div>
-                    </div>
-                    <div class="stats-explanation">
-                        Based on your last 30 trades
-                    </div>
-                </div>
-
-                <div class="stats-section" style="background: var(--success);">
-                    <div class="stats-title">Monthly Performance</div>
-                    <div class="stats-grid">
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">$24.5K</div>
-                            <div class="stats-stat-label">Total PnL</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">142</div>
-                            <div class="stats-stat-label">Total Trades</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">$172</div>
-                            <div class="stats-stat-label">Avg PnL/Day</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">18</div>
-                            <div class="stats-stat-label">Trading Days</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -964,72 +1295,123 @@
 </div>
 
 <script>
-    // Initialize the journal when the page loads
+    // Futures contracts data organized by Asset Class - MATCHING THE IMAGE EXACTLY
+    const CONTRACTS_DATA = {
+        'Equity Index Futures': [
+            'ESH4 - E-mini S&P 50C',
+            'NQH4 - E-mini Nasdaq-100',
+            'YMH4 - E-mini Dow Jones',
+            'RTYH4 - E-mini Russell 2000'
+        ],
+        'Energy Futures': [
+            'CLJ4 - Crude Oil',
+            'NGJ4 - Natural Gas'
+        ],
+        'Metals Futures': [
+            'GCJ4 - Gold',
+            'SIJ4 - Silver',
+            'HGJ4 - Copper'
+        ],
+        'Cryptocurrency Futures': [
+            'BTC - Bitcoin',
+            'ETH - Ethereum'
+        ],
+        'Currency/FX Futures': [
+            '6EM4 - Euro FX',
+            '6BM4 - British Pound',
+            '6JM4 - Japanese Yen'
+        ],
+        'Agricultural Futures': [
+            'ZCK4 - Corn',
+            'ZSK4 - Soybeans',
+            'ZWK4 - Wheat'
+        ],
+        'Interest Rate Futures': [
+            'ZNM4 - 10-Year T-Note',
+            'ZBM4 - 30-Year T-Bond'
+        ]
+    };
+
+    // Calendar functionality
+    let currentDate = new Date(); // Set to current date instead of February 2023
+    let selectedDayForTrade = null;
+
+    // Initialize the calculator when the page loads
     document.addEventListener('DOMContentLoaded', function() {
-        initializeJournal();
+        initializeCalculator();
         setupEventListeners();
         loadTradeHistory();
+        calculateGoal();
+        setupCalendarNavigation();
         generateCalendar();
+        setupModal();
         
         // Set today's date as default for trade log
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('trade-date').value = today;
+        document.getElementById('trade-open-date').value = today;
+        document.getElementById('trade-exit-date').value = today;
         
         // Initialize notes character counter
         updateNotesCounter();
         
-        // Setup modal functionality
-        setupModal();
-        
-        // Load sample data for February 2023 (as shown in the image)
+        // Load sample data for current month instead of February 2023
         loadSampleData();
     });
 
-    function initializeJournal() {
+    function initializeCalculator() {
         // Set up dark mode toggle
         setupDarkModeToggle();
         
         // Set up tab navigation
         setupTabNavigation();
         
-        // Set up calendar navigation
-        setupCalendarNavigation();
+        // Populate the asset class dropdown
+        populateAssetClassSelect();
     }
 
     function setupEventListeners() {
+        // Add event listeners to all inputs for real-time calculation
+        const inputs = [
+            'account-capital', 
+            'risk-percentage', 
+            'goal-profit', 
+            'win-rate', 
+            'risk-reward'
+        ];
+        
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                updateStrategy();
+                // Only calculate full goal if we have all inputs
+                if (inputs.every(inputId => document.getElementById(inputId).value)) {
+                    calculateGoal();
+                }
+            });
+        });
+        
+        // Add event listener for asset class change
+        document.getElementById('asset-class-select').addEventListener('change', function() {
+            updateSymbolSizeSelect();
+        });
+        
         // Add event listeners for PnL calculation
         document.getElementById('trade-entry').addEventListener('input', calculatePnL);
         document.getElementById('trade-exit').addEventListener('input', calculatePnL);
         document.getElementById('trade-contracts').addEventListener('input', calculatePnL);
         document.getElementById('trade-commission').addEventListener('input', calculatePnL);
-        document.getElementById('trade-fees').addEventListener('input', calculatePnL);
         
         // Add event listener for notes character counter
         document.getElementById('trade-notes').addEventListener('input', updateNotesCounter);
-    }
-    
-    function setupModal() {
-        const modal = document.getElementById('day-details-modal');
-        const closeBtn = document.querySelector('.close-modal');
         
-        // Close modal when clicking the X
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-        
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
+        // Initialize strategy
+        updateStrategy();
     }
 
     // Update notes character counter
     function updateNotesCounter() {
         const notesTextarea = document.getElementById('trade-notes');
         const counter = document.getElementById('notes-counter');
-        const maxLength = 200;
+        const maxLength = 100;
         const currentLength = notesTextarea.value.length;
         const remaining = maxLength - currentLength;
         
@@ -1044,33 +1426,80 @@
         }
     }
 
-    // Calculate PnL based on entry, exit, contracts, commission and fees
+    // Populate asset class dropdown - MATCHING THE IMAGE EXACTLY
+    function populateAssetClassSelect() {
+        const assetClassSelect = document.getElementById('asset-class-select');
+        
+        // Clear existing options
+        assetClassSelect.innerHTML = '';
+        
+        // Add asset classes from CONTRACTS_DATA in exact order from image
+        Object.keys(CONTRACTS_DATA).forEach(assetClass => {
+            const option = document.createElement('option');
+            option.value = assetClass;
+            option.textContent = assetClass;
+            assetClassSelect.appendChild(option);
+        });
+        
+        // Set default selection to match image
+        assetClassSelect.selectedIndex = 0;
+        
+        // Update symbol/size dropdown based on default asset class
+        updateSymbolSizeSelect();
+    }
+
+    // Update symbol/size dropdown based on selected asset class - MATCHING THE IMAGE EXACTLY
+    function updateSymbolSizeSelect() {
+        const assetClass = document.getElementById('asset-class-select').value;
+        const symbolSizeSelect = document.getElementById('symbol-size-select');
+        
+        // Clear existing options
+        symbolSizeSelect.innerHTML = '';
+        
+        // Add contracts for the selected asset class in exact order from image
+        if (CONTRACTS_DATA[assetClass]) {
+            CONTRACTS_DATA[assetClass].forEach(symbol => {
+                const option = document.createElement('option');
+                option.value = symbol;
+                option.textContent = symbol;
+                symbolSizeSelect.appendChild(option);
+            });
+        }
+        
+        // Set default selection to match image
+        if (symbolSizeSelect.options.length > 0) {
+            symbolSizeSelect.selectedIndex = 0;
+        }
+    }
+
+    // Calculate PnL based on entry, exit, contracts and commission
     function calculatePnL() {
         const entry = parseFloat(document.getElementById('trade-entry').value) || 0;
         const exit = parseFloat(document.getElementById('trade-exit').value) || 0;
         const contracts = parseInt(document.getElementById('trade-contracts').value) || 0;
         const commission = parseFloat(document.getElementById('trade-commission').value) || 0;
-        const fees = parseFloat(document.getElementById('trade-fees').value) || 0;
         const direction = document.getElementById('trade-direction').value;
         
         let pnl = 0;
-        // Using standard contract value of $50 per point for ES
-        if (direction === 'Long') {
-            pnl = (exit - entry) * 50 * contracts;
+        if (direction === 'Long/Buy') {
+            pnl = (exit - entry) * 20 * contracts; // Using standard contract value of $20 per point
         } else {
-            pnl = (entry - exit) * 50 * contracts;
+            pnl = (entry - exit) * 20 * contracts;
         }
         
-        // Subtract commission and fees
-        pnl -= (commission + fees);
+        // Subtract commission
+        pnl -= commission;
         
-        // Calculate PnL percentage (assuming $1,200 account)
+        // Calculate PnL percentage (assuming $1,200 account for your strategy)
         const accountSize = 1200;
         const pnlPercent = (pnl / accountSize) * 100;
         
         // Update PnL fields
         document.getElementById('trade-pnl').value = pnl.toFixed(2);
         document.getElementById('trade-pnl-percent').value = pnlPercent.toFixed(2);
+        
+        // Update status based on PnL
+        document.getElementById('trade-status').value = pnl >= 0 ? 'Win' : 'Loss';
     }
 
     function setupTabNavigation() {
@@ -1125,10 +1554,291 @@
         }
     }
 
+    function updateStrategy() {
+        // Get input values
+        const accountCapital = parseFloat(document.getElementById('account-capital').value) || 0;
+        const riskPercentage = parseFloat(document.getElementById('risk-percentage').value) || 0;
+        const riskReward = parseFloat(document.getElementById('risk-reward').value) || 0;
+        const winRate = parseFloat(document.getElementById('win-rate').value) || 0;
+        
+        // Calculate risk per trade
+        const riskPerTrade = accountCapital * (riskPercentage / 100);
+        document.getElementById('risk-per-trade').textContent = `$${riskPerTrade.toFixed(2)}`;
+        
+        // Calculate reward per trade
+        const rewardPerTrade = riskPerTrade * riskReward;
+        document.getElementById('reward-per-trade').textContent = `$${rewardPerTrade.toFixed(2)}`;
+        
+        // Calculate expected value per trade
+        const winProbability = winRate / 100;
+        const lossProbability = 1 - winProbability;
+        const expectedValue = (winProbability * rewardPerTrade) - (lossProbability * riskPerTrade);
+        document.getElementById('expected-value').textContent = `$${expectedValue.toFixed(2)}`;
+    }
+
+    function calculateGoal() {
+        // Get input values
+        const accountCapital = parseFloat(document.getElementById('account-capital').value) || 0;
+        const riskPercentage = parseFloat(document.getElementById('risk-percentage').value) || 0;
+        const goalProfit = parseFloat(document.getElementById('goal-profit').value) || 0;
+        const winRate = parseFloat(document.getElementById('win-rate').value) || 0;
+        const riskReward = parseFloat(document.getElementById('risk-reward').value) || 0;
+        
+        // Calculate risk per trade
+        const riskPerTrade = accountCapital * (riskPercentage / 100);
+        
+        // Calculate reward per trade
+        const rewardPerTrade = riskPerTrade * riskReward;
+        
+        // Calculate expected value per trade
+        const winProbability = winRate / 100;
+        const lossProbability = 1 - winProbability;
+        const expectedValue = (winProbability * rewardPerTrade) - (lossProbability * riskPerTrade);
+        
+        // Calculate number of trades needed to reach goal
+        let tradesNeeded = 0;
+        if (expectedValue > 0) {
+            tradesNeeded = Math.ceil(goalProfit / expectedValue);
+        } else {
+            tradesNeeded = 999; // If expected value is negative, goal is unrealistic
+        }
+        
+        // Calculate winning and losing trades
+        const winningTrades = Math.ceil(tradesNeeded * winProbability);
+        const losingTrades = tradesNeeded - winningTrades;
+        
+        // Calculate total risk capital
+        const totalRisk = losingTrades * riskPerTrade;
+        
+        // Calculate account after reaching goal
+        const accountAfterGoal = accountCapital + goalProfit;
+        
+        // Estimate time (assuming 8 trades per day for your strategy)
+        const timeDays = Math.ceil(tradesNeeded / 8);
+        const dailyProfit = goalProfit / timeDays;
+        
+        // Update UI with results
+        document.getElementById('trades-needed').textContent = tradesNeeded;
+        document.getElementById('winning-trades').textContent = winningTrades;
+        document.getElementById('losing-trades').textContent = losingTrades;
+        document.getElementById('time-days').textContent = timeDays;
+        document.getElementById('total-risk').textContent = `$${totalRisk.toFixed(2)}`;
+        document.getElementById('account-after-goal').textContent = `$${accountAfterGoal.toFixed(2)}`;
+        document.getElementById('daily-profit').textContent = `$${dailyProfit.toFixed(2)}`;
+        
+        // Update progress bar
+        const progressPercent = Math.min(100, (accountCapital / (accountCapital + goalProfit)) * 100);
+        document.getElementById('progress-percent').textContent = `${progressPercent.toFixed(1)}%`;
+        document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+    }
+
+    function logTrade() {
+        // Get trade data from form
+        const assetClass = document.getElementById('asset-class-select').value;
+        const symbolSize = document.getElementById('symbol-size-select').value;
+        const openDate = document.getElementById('trade-open-date').value;
+        const exitDate = document.getElementById('trade-exit-date').value;
+        const entry = parseFloat(document.getElementById('trade-entry').value);
+        const exit = parseFloat(document.getElementById('trade-exit').value);
+        const direction = document.getElementById('trade-direction').value;
+        const strategy = document.getElementById('trade-strategy').value;
+        const timeFrame = document.getElementById('time-frame').value;
+        const stopLoss = parseFloat(document.getElementById('trade-stop-loss').value);
+        const status = document.getElementById('trade-status').value;
+        const rr = document.getElementById('trade-rr').value;
+        const contracts = parseInt(document.getElementById('trade-contracts').value);
+        const commission = parseFloat(document.getElementById('trade-commission').value);
+        const pnl = parseFloat(document.getElementById('trade-pnl').value);
+        const pnlPercent = parseFloat(document.getElementById('trade-pnl-percent').value);
+        const notes = document.getElementById('trade-notes').value;
+        
+        // Create trade object
+        const trade = {
+            id: Date.now(),
+            assetClass,
+            symbolSize,
+            openDate,
+            exitDate,
+            entry,
+            exit,
+            direction,
+            strategy,
+            timeFrame,
+            stopLoss,
+            status,
+            rr,
+            contracts,
+            commission,
+            pnl,
+            pnlPercent,
+            notes,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Save to localStorage
+        let trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
+        trades.push(trade);
+        localStorage.setItem('futuresTrades', JSON.stringify(trades));
+        
+        // Refresh trade list and calendar
+        loadTradeHistory();
+        generateCalendar();
+        
+        // Clear form notes
+        document.getElementById('trade-notes').value = '';
+        updateNotesCounter();
+        
+        // Show success message
+        alert('Trade logged successfully!');
+    }
+
+    function loadTradeHistory() {
+        const tradeList = document.getElementById('trade-history-list');
+        const noTradesMessage = document.getElementById('no-trades-message');
+        
+        // Get trades from localStorage
+        const trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
+        
+        // Clear existing list
+        tradeList.innerHTML = '';
+        
+        if (trades.length === 0) {
+            noTradesMessage.style.display = 'block';
+            return;
+        }
+        
+        noTradesMessage.style.display = 'none';
+        
+        // Add trades to list (most recent first)
+        trades.reverse().forEach((trade, index) => {
+            const listItem = document.createElement('li');
+            listItem.className = 'trade-item';
+            
+            const tradeType = document.createElement('div');
+            tradeType.className = `trade-type ${trade.status === 'Win' ? 'Win' : 'Loss'}`;
+            tradeType.textContent = trade.status === 'Win' ? 'W' : 'L';
+            
+            const tradeDetails = document.createElement('div');
+            tradeDetails.className = 'trade-details';
+            
+            const tradeAmount = document.createElement('div');
+            tradeAmount.className = 'trade-amount';
+            tradeAmount.textContent = `$${Math.abs(trade.pnl).toFixed(2)} ${trade.pnl >= 0 ? 'Profit' : 'Loss'}`;
+            tradeAmount.classList.add(trade.pnl >= 0 ? 'positive' : 'negative');
+            
+            const tradeInfo = document.createElement('div');
+            tradeInfo.className = 'trade-info';
+            tradeInfo.textContent = `${trade.symbolSize} ${trade.direction} • ${trade.timeFrame} • ${trade.strategy} • ${trade.openDate}`;
+            
+            tradeDetails.appendChild(tradeAmount);
+            tradeDetails.appendChild(tradeInfo);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn delete';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.addEventListener('click', function() {
+                deleteTrade(trades.length - 1 - index); // Reverse index since we reversed the array
+            });
+            
+            listItem.appendChild(tradeType);
+            listItem.appendChild(tradeDetails);
+            listItem.appendChild(deleteBtn);
+            
+            tradeList.appendChild(listItem);
+        });
+    }
+
+    function deleteTrade(index) {
+        // Get trades from localStorage
+        let trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
+        
+        // Remove trade at index
+        trades.splice(index, 1);
+        
+        // Save updated trades
+        localStorage.setItem('futuresTrades', JSON.stringify(trades));
+        
+        // Update display
+        loadTradeHistory();
+        generateCalendar();
+    }
+
+    // PDF Generation Functions
+    function previewPDF() {
+        // Use browser's print functionality for preview
+        window.print();
+    }
+
+    function downloadPDF() {
+        // Create a new jsPDF instance
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Get trades from localStorage
+        const trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
+        
+        // Add title
+        doc.setFontSize(20);
+        doc.text('Trading Journal Report', 20, 20);
+        
+        // Add date
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+        
+        // Calculate performance metrics
+        const totalTrades = trades.length;
+        const winningTrades = trades.filter(trade => trade.status === 'Win').length;
+        const losingTrades = trades.filter(trade => trade.status === 'Loss').length;
+        const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+        const totalPnl = trades.reduce((sum, trade) => sum + trade.pnl, 0);
+        
+        // Add performance summary
+        doc.setFontSize(16);
+        doc.text('Performance Summary', 20, 50);
+        
+        doc.setFontSize(12);
+        doc.text(`Total Trades: ${totalTrades}`, 20, 65);
+        doc.text(`Winning Trades: ${winningTrades}`, 20, 75);
+        doc.text(`Losing Trades: ${losingTrades}`, 20, 85);
+        doc.text(`Win Rate: ${winRate.toFixed(1)}%`, 20, 95);
+        doc.text(`Total P&L: $${totalPnl.toFixed(2)}`, 20, 105);
+        
+        // Add trade details table
+        if (trades.length > 0) {
+            doc.setFontSize(16);
+            doc.text('Trade Details', 20, 125);
+            
+            // Table headers
+            doc.setFontSize(10);
+            doc.text('Symbol', 20, 140);
+            doc.text('Date', 50, 140);
+            doc.text('Direction', 80, 140);
+            doc.text('Strategy', 110, 140);
+            doc.text('P&L', 150, 140);
+            
+            // Table rows
+            let yPos = 150;
+            trades.forEach((trade, index) => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                doc.text(trade.symbolSize, 20, yPos);
+                doc.text(trade.openDate, 50, yPos);
+                doc.text(trade.direction, 80, yPos);
+                doc.text(trade.strategy, 110, yPos);
+                doc.text(`$${trade.pnl.toFixed(2)}`, 150, yPos);
+                
+                yPos += 10;
+            });
+        }
+        
+        // Save the PDF
+        doc.save('trading-journal-report.pdf');
+    }
+
     // Calendar functionality
-    let currentDate = new Date(2023, 1, 1); // February 2023
-    let selectedDayForTrade = null;
-    
     function setupCalendarNavigation() {
         document.getElementById('prev-month').addEventListener('click', function() {
             currentDate.setMonth(currentDate.getMonth() - 1);
@@ -1192,7 +1902,7 @@
         
         // Add days of the month
         const today = new Date();
-        const trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
+        const trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
         
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = document.createElement('div');
@@ -1212,7 +1922,7 @@
             
             // Calculate PnL for this day
             const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayTrades = trades.filter(trade => trade.date === dateStr);
+            const dayTrades = trades.filter(trade => trade.openDate === dateStr);
             const dayPnL = dayTrades.reduce((sum, trade) => sum + parseFloat(trade.pnl), 0);
             
             // Add PnL if there are trades
@@ -1257,27 +1967,26 @@
         }
     }
     
-    function viewDayTrades(date, day) {
+    function viewDayTrades(dateStr, day) {
         const modal = document.getElementById('day-details-modal');
         const modalTitle = document.getElementById('modal-date-title');
         const tradesList = document.getElementById('day-trades-list');
         const noTradesMsg = document.getElementById('no-trades-for-day');
         
         // Store the selected day for adding trades
-        selectedDayForTrade = date;
+        selectedDayForTrade = dateStr;
         
-        // Format date for display
-        const dateObj = new Date(date);
+        // Format date for display - FIXED: Use the actual day passed to the function
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-        const displayDate = `${monthNames[dateObj.getMonth()]} ${day}, ${dateObj.getFullYear()}`;
+        const displayDate = `${monthNames[currentDate.getMonth()]} ${day}, ${currentDate.getFullYear()}`;
         
         modalTitle.textContent = `Trades for ${displayDate}`;
         
         // Get trades for this day
-        const trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
-        const dayTrades = trades.filter(trade => trade.date === date);
+        const trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
+        const dayTrades = trades.filter(trade => trade.openDate === dateStr);
         
         // Clear existing list
         tradesList.innerHTML = '';
@@ -1308,7 +2017,7 @@
                 
                 const tradeInfo = document.createElement('div');
                 tradeInfo.className = 'trade-info';
-                tradeInfo.textContent = `${trade.symbol} ${trade.direction} • ${trade.contracts} contracts`;
+                tradeInfo.textContent = `${trade.symbolSize} ${trade.direction} • ${trade.contracts} contracts`;
                 
                 tradeDetails.appendChild(tradeAmount);
                 tradeDetails.appendChild(tradeInfo);
@@ -1319,7 +2028,6 @@
                 deleteBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     deleteTradeById(trade.id);
-                    modal.style.display = 'none';
                 });
                 
                 tradeItem.appendChild(tradeType);
@@ -1336,141 +2044,33 @@
     
     function openAddTradeForSelectedDay() {
         if (selectedDayForTrade) {
-            document.getElementById('trade-date').value = selectedDayForTrade;
+            document.getElementById('trade-open-date').value = selectedDayForTrade;
+            document.getElementById('trade-exit-date').value = selectedDayForTrade;
             document.querySelector('.tab-button[data-tab="add-trade-tab"]').click();
             document.getElementById('day-details-modal').style.display = 'none';
         }
     }
-
-    function saveTrade() {
-        // Get trade data from form
-        const date = document.getElementById('trade-date').value;
-        const symbol = document.getElementById('trade-symbol').value;
-        const direction = document.getElementById('trade-direction').value;
-        const contracts = parseInt(document.getElementById('trade-contracts').value);
-        const entry = parseFloat(document.getElementById('trade-entry').value);
-        const exit = parseFloat(document.getElementById('trade-exit').value);
-        const stop = parseFloat(document.getElementById('trade-stop').value);
-        const target = parseFloat(document.getElementById('trade-target').value);
-        const commission = parseFloat(document.getElementById('trade-commission').value);
-        const fees = parseFloat(document.getElementById('trade-fees').value);
-        const pnl = parseFloat(document.getElementById('trade-pnl').value);
-        const pnlPercent = parseFloat(document.getElementById('trade-pnl-percent').value);
-        const notes = document.getElementById('trade-notes').value;
+    
+    function setupModal() {
+        const modal = document.getElementById('day-details-modal');
+        const closeBtn = document.querySelector('.close-modal');
         
-        // Create trade object
-        const trade = {
-            id: Date.now(),
-            date,
-            symbol,
-            direction,
-            contracts,
-            entry,
-            exit,
-            stop,
-            target,
-            commission,
-            fees,
-            pnl,
-            pnlPercent,
-            notes,
-            timestamp: new Date().toISOString()
-        };
-        
-        // Save to localStorage
-        let trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
-        trades.push(trade);
-        localStorage.setItem('journalTrades', JSON.stringify(trades));
-        
-        // Refresh calendar and trade list
-        generateCalendar();
-        loadTradeHistory();
-        
-        // Clear form
-        document.getElementById('trade-notes').value = '';
-        updateNotesCounter();
-        
-        // Show success message
-        alert('Trade saved successfully!');
-        
-        // Switch to calendar tab to see the updated calendar
-        document.querySelector('.tab-button[data-tab="calendar-tab"]').click();
-    }
-
-    function loadTradeHistory() {
-        const tradeList = document.getElementById('trade-history-list');
-        const noTradesMessage = document.getElementById('no-trades-message');
-        
-        // Get trades from localStorage
-        const trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
-        
-        // Clear existing list
-        tradeList.innerHTML = '';
-        
-        if (trades.length === 0) {
-            noTradesMessage.style.display = 'block';
-            return;
-        }
-        
-        noTradesMessage.style.display = 'none';
-        
-        // Add trades to list (most recent first)
-        trades.reverse().forEach((trade, index) => {
-            const listItem = document.createElement('li');
-            listItem.className = 'trade-item';
-            
-            const tradeType = document.createElement('div');
-            tradeType.className = `trade-type ${trade.pnl >= 0 ? 'Win' : 'Loss'}`;
-            tradeType.textContent = trade.pnl >= 0 ? 'W' : 'L';
-            
-            const tradeDetails = document.createElement('div');
-            tradeDetails.className = 'trade-details';
-            
-            const tradeAmount = document.createElement('div');
-            tradeAmount.className = 'trade-amount';
-            tradeAmount.textContent = `$${Math.abs(trade.pnl).toFixed(2)} ${trade.pnl >= 0 ? 'Profit' : 'Loss'}`;
-            tradeAmount.classList.add(trade.pnl >= 0 ? 'positive' : 'negative');
-            
-            const tradeInfo = document.createElement('div');
-            tradeInfo.className = 'trade-info';
-            tradeInfo.textContent = `${trade.symbol} ${trade.direction} • ${trade.date} • ${trade.contracts} contracts`;
-            
-            tradeDetails.appendChild(tradeAmount);
-            tradeDetails.appendChild(tradeInfo);
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'action-btn delete';
-            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-            deleteBtn.addEventListener('click', function() {
-                deleteTrade(trades.length - 1 - index); // Reverse index since we reversed the array
-            });
-            
-            listItem.appendChild(tradeType);
-            listItem.appendChild(tradeDetails);
-            listItem.appendChild(deleteBtn);
-            
-            tradeList.appendChild(listItem);
+        // Close modal when clicking the X
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
         });
-    }
-
-    function deleteTrade(index) {
-        // Get trades from localStorage
-        let trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
         
-        // Remove trade at index
-        trades.splice(index, 1);
-        
-        // Save updated trades
-        localStorage.setItem('journalTrades', JSON.stringify(trades));
-        
-        // Update display
-        loadTradeHistory();
-        generateCalendar();
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     }
     
     function deleteTradeById(id) {
         // Get trades from localStorage
-        let trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
+        let trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
         
         // Find index of trade with given id
         const index = trades.findIndex(trade => trade.id === id);
@@ -1480,7 +2080,24 @@
             trades.splice(index, 1);
             
             // Save updated trades
-            localStorage.setItem('journalTrades', JSON.stringify(trades));
+            localStorage.setItem('futuresTrades', JSON.stringify(trades));
+            
+            // UPDATE: Check if we're in the modal context and if there are still trades for the selected day
+            const modal = document.getElementById('day-details-modal');
+            if (modal.style.display === 'flex' && selectedDayForTrade) {
+                // Get remaining trades for the selected day
+                const remainingTrades = trades.filter(trade => trade.openDate === selectedDayForTrade);
+                
+                if (remainingTrades.length > 0) {
+                    // If there are still trades, refresh the modal content but keep it open
+                    // Extract day from selectedDayForTrade
+                    const day = parseInt(selectedDayForTrade.split('-')[2]);
+                    viewDayTrades(selectedDayForTrade, day);
+                } else {
+                    // If no trades left, close the modal
+                    modal.style.display = 'none';
+                }
+            }
             
             // Update display
             loadTradeHistory();
@@ -1488,71 +2105,60 @@
         }
     }
     
-    // Load sample data for February 2023 (as shown in the image)
+    // Load sample data for current month instead of February 2023
     function loadSampleData() {
         // Check if we already have data
-        if (localStorage.getItem('journalTrades')) return;
+        if (localStorage.getItem('futuresTrades')) return;
         
-        const sampleTrades = [
-            { date: '2023-02-01', pnl: 71.32, trades: 1 },
-            { date: '2023-02-02', pnl: 0, trades: 0 },
-            { date: '2023-02-03', pnl: 19.22, trades: 2 },
-            { date: '2023-02-04', pnl: 89.35, trades: 1 },
-            { date: '2023-02-05', pnl: 0, trades: 0 },
-            { date: '2023-02-06', pnl: -932.10, trades: 1 },
-            { date: '2023-02-07', pnl: 0, trades: 0 },
-            { date: '2023-02-08', pnl: 0, trades: 0 },
-            { date: '2023-02-09', pnl: 298.32, trades: 1 },
-            { date: '2023-02-10', pnl: -193.12, trades: 1 },
-            { date: '2023-02-11', pnl: 0, trades: 0 },
-            { date: '2023-02-12', pnl: 0, trades: 0 },
-            { date: '2023-02-13', pnl: 50.00, trades: 1 },
-            { date: '2023-02-14', pnl: 250.58, trades: 1 },
-            { date: '2023-02-15', pnl: -112.74, trades: 1 },
-            { date: '2023-02-16', pnl: 0, trades: 0 },
-            { date: '2023-02-17', pnl: 23.91, trades: 2 },
-            { date: '2023-02-18', pnl: 0, trades: 0 },
-            { date: '2023-02-19', pnl: 0, trades: 0 },
-            { date: '2023-02-20', pnl: 0, trades: 1 },
-            { date: '2023-02-21', pnl: 238.81, trades: 2 },
-            { date: '2023-02-22', pnl: -190.23, trades: 1 },
-            { date: '2023-02-23', pnl: 289.00, trades: 1 },
-            { date: '2023-02-24', pnl: 0, trades: 0 },
-            { date: '2023-02-25', pnl: 0, trades: 0 },
-            { date: '2023-02-26', pnl: 0, trades: 0 },
-            { date: '2023-02-27', pnl: 0, trades: 0 },
-            { date: '2023-02-28', pnl: 0, trades: 0 }
-        ];
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         
-        const trades = [];
+        const sampleTrades = [];
         
-        sampleTrades.forEach(sample => {
-            for (let i = 0; i < sample.trades; i++) {
-                // Create a realistic trade based on the sample data
-                const pnlPerTrade = sample.trades > 0 ? sample.pnl / sample.trades : 0;
-                const direction = pnlPerTrade >= 0 ? 'Long' : 'Short';
+        // Create sample data for a few random days in the current month
+        const sampleDays = [1, 3, 5, 8, 10, 15, 18, 22, 25]; // Some random days
+        
+        sampleDays.forEach(day => {
+            if (day <= daysInMonth) {
+                // Create 1-3 sample trades for each sample day
+                const numTrades = Math.floor(Math.random() * 3) + 1;
+                let dayPnL = 0;
                 
-                trades.push({
-                    id: Date.now() + i,
-                    date: sample.date,
-                    symbol: ['ES', 'NQ', 'YM', 'CL', 'GC'][Math.floor(Math.random() * 5)],
-                    direction: direction,
-                    contracts: Math.floor(Math.random() * 3) + 1,
-                    entry: 4500 + Math.random() * 100,
-                    exit: 4500 + Math.random() * 100 + (direction === 'Long' ? 5 : -5),
-                    stop: 4495,
-                    target: 4515,
-                    commission: 2.50,
-                    fees: 1.25,
-                    pnl: pnlPerTrade,
-                    pnlPercent: (pnlPerTrade / 1200) * 100,
-                    notes: 'Sample trade data',
-                    timestamp: new Date(sample.date).toISOString()
-                });
+                for (let i = 0; i < numTrades; i++) {
+                    // Random PnL between -200 and 300
+                    const pnl = (Math.random() * 500) - 200;
+                    dayPnL += pnl;
+                    
+                    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    
+                    sampleTrades.push({
+                        id: Date.now() + i + day * 1000,
+                        assetClass: 'Equity Index Futures',
+                        symbolSize: 'ESH4 - E-mini S&P 50C',
+                        openDate: dateStr,
+                        exitDate: dateStr,
+                        entry: 19000,
+                        exit: 19000 + (pnl / 20),
+                        direction: pnl >= 0 ? 'Long/Buy' : 'Short/Sell',
+                        strategy: 'Up Trend/L.B',
+                        timeFrame: '1 Hr',
+                        stopLoss: 18975,
+                        status: pnl >= 0 ? 'Win' : 'Loss',
+                        rr: '1:3',
+                        contracts: 1,
+                        commission: 2.50,
+                        pnl: pnl,
+                        pnlPercent: (pnl / 1200) * 100,
+                        notes: 'Sample trade data',
+                        timestamp: new Date(dateStr).toISOString()
+                    });
+                }
             }
         });
         
-        localStorage.setItem('journalTrades', JSON.stringify(trades));
+        localStorage.setItem('futuresTrades', JSON.stringify(sampleTrades));
         generateCalendar();
     }
 </script>
