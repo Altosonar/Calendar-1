@@ -536,6 +536,7 @@
             margin-bottom: 15px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            position: relative;
         }
         
         .form-row {
@@ -853,6 +854,91 @@
             overflow-y: auto;
         }
 
+        /* NEW: Trade Preview Styles */
+        .trade-preview {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--primary);
+            z-index: 100;
+            max-width: 90%;
+            width: 350px;
+            text-align: center;
+            animation: fadeInOut 3s forwards;
+        }
+        
+        .trade-preview-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .trade-preview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .trade-preview-item {
+            text-align: left;
+        }
+        
+        .trade-preview-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 2px;
+        }
+        
+        .trade-preview-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .trade-preview-pnl {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        
+        .trade-preview-pnl.positive {
+            color: var(--success);
+        }
+        
+        .trade-preview-pnl.negative {
+            color: var(--danger);
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+        
+        /* NEW: Success Notification Styles */
+        .success-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeInOut 2s forwards;
+        }
+
         /* Responsive breakpoint for mobile devices */
         @media (max-width: 480px) {
             .calculator-container {
@@ -908,6 +994,15 @@
             
             .day-trade-count {
                 font-size: 10px;
+            }
+            
+            .trade-preview {
+                width: 90%;
+                padding: 15px;
+            }
+            
+            .trade-preview-content {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -1632,6 +1727,69 @@
         document.getElementById('progress-fill').style.width = `${progressPercent}%`;
     }
 
+    // NEW: Show trade preview function
+    function showTradePreview(trade) {
+        // Create preview element
+        const preview = document.createElement('div');
+        preview.className = 'trade-preview';
+        
+        // Format the PnL with proper sign
+        const pnlFormatted = trade.pnl >= 0 ? `+$${Math.abs(trade.pnl).toFixed(2)}` : `-$${Math.abs(trade.pnl).toFixed(2)}`;
+        
+        // Create preview content
+        preview.innerHTML = `
+            <div class="trade-preview-title">Trade Preview</div>
+            <div class="trade-preview-content">
+                <div class="trade-preview-item">
+                    <div class="trade-preview-label">Symbol</div>
+                    <div class="trade-preview-value">${trade.symbolSize.split(' - ')[0]}</div>
+                </div>
+                <div class="trade-preview-item">
+                    <div class="trade-preview-label">Direction</div>
+                    <div class="trade-preview-value">${trade.direction}</div>
+                </div>
+                <div class="trade-preview-item">
+                    <div class="trade-preview-label">Contracts</div>
+                    <div class="trade-preview-value">${trade.contracts}</div>
+                </div>
+                <div class="trade-preview-item">
+                    <div class="trade-preview-label">Status</div>
+                    <div class="trade-preview-value">${trade.status}</div>
+                </div>
+            </div>
+            <div class="trade-preview-pnl ${trade.pnl >= 0 ? 'positive' : 'negative'}">${pnlFormatted}</div>
+            <div style="font-size: 14px; color: var(--gray);">This preview will disappear shortly</div>
+        `;
+        
+        // Add to the trade entry form
+        document.querySelector('.trade-entry-form').appendChild(preview);
+        
+        // Remove preview after animation completes
+        setTimeout(() => {
+            if (preview.parentNode) {
+                preview.parentNode.removeChild(preview);
+            }
+        }, 3000);
+    }
+    
+    // NEW: Show success notification
+    function showSuccessNotification() {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'success-notification';
+        notification.textContent = 'Trade saved successfully!';
+        
+        // Add to the body
+        document.body.appendChild(notification);
+        
+        // Remove notification after animation completes
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 2000);
+    }
+
     function logTrade() {
         // Get trade data from form
         const assetClass = document.getElementById('asset-class-select').value;
@@ -1675,6 +1833,9 @@
             timestamp: new Date().toISOString()
         };
         
+        // Show trade preview
+        showTradePreview(trade);
+        
         // Save to localStorage
         let trades = JSON.parse(localStorage.getItem('futuresTrades')) || [];
         trades.push(trade);
@@ -1688,8 +1849,10 @@
         document.getElementById('trade-notes').value = '';
         updateNotesCounter();
         
-        // Show success message
-        alert('Trade logged successfully!');
+        // Show success notification instead of alert
+        setTimeout(() => {
+            showSuccessNotification();
+        }, 3000);
     }
 
     function loadTradeHistory() {
