@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Trading Calculator</title>
+    <title>Trading Journal Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -11,18 +11,18 @@
             --primary-light: #4895ef;
             --primary-dark: #3a0ca3;
             --secondary: #7209b7;
-            --success: #4cc9f0;
-            --warning: #f72585;
-            --danger: #e63946;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --border: #dee2e6;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --border: #d1d5db;
             --card-bg: #ffffff;
-            --body-bg: #f5f7ff;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --radius: 16px;
+            --body-bg: #f9fafb;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
             --transition: all 0.3s ease;
             --input-bg: white;
             --input-border: var(--border);
@@ -33,19 +33,19 @@
             --primary-light: #4895ef;
             --primary-dark: #4361ee;
             --secondary: #7209b7;
-            --success: #4cc9f0;
-            --warning: #f72585;
-            --danger: #e63946;
-            --light: #343a40;
-            --dark: #f8f9fa;
-            --gray: #adb5bd;
-            --light-gray: #495057;
-            --border: #495057;
-            --card-bg: #212529;
-            --body-bg: #121212;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            --input-bg: #343a40;
-            --input-border: #495057;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #374151;
+            --dark: #f9fafb;
+            --gray: #9ca3af;
+            --light-gray: #4b5563;
+            --border: #4b5563;
+            --card-bg: #1f2937;
+            --body-bg: #111827;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --input-bg: #374151;
+            --input-border: #4b5563;
         }
         
         * {
@@ -68,11 +68,11 @@
             padding: 8px;
         }
         
-        .calculator-container {
+        .journal-container {
             width: 100%;
             max-width: 480px;
             background: var(--card-bg);
-            border-radius: 0;
+            border-radius: 12px;
             box-shadow: var(--shadow);
             overflow: hidden;
             height: 100vh;
@@ -81,11 +81,10 @@
             flex-direction: column;
             transition: var(--transition);
             margin: 0 auto;
-            padding: 8px;
         }
         
-        .calculator-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        .journal-header {
+            background: var(--primary);
             color: white;
             padding: 20px 15px;
             text-align: center;
@@ -95,7 +94,7 @@
             position: relative;
         }
         
-        .calculator-title {
+        .journal-title {
             font-size: 22px;
             font-weight: 700;
             display: flex;
@@ -160,7 +159,7 @@
             font-size: 18px;
         }
 
-        .calculator-content {
+        .journal-content {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -199,192 +198,6 @@
             color: var(--primary);
         }
         
-        .input-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 15px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        
-        .input-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .two-column-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        @media (min-width: 400px) {
-             .two-column-layout {
-                 grid-template-columns: 1fr 1fr;
-             }
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .form-input, .form-select {
-            background: var(--input-bg);
-            color: var(--dark);
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 16px;
-            width: 100%;
-            transition: var(--transition);
-            appearance: none;
-        }
-        
-        .input-with-unit {
-            display: flex;
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-            background: var(--input-bg);
-        }
-        
-        .input-with-unit input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px 12px;
-            font-size: 16px;
-            color: var(--dark);
-            width: 100%;
-        }
-        
-        .input-with-unit .unit {
-            background: var(--light-gray);
-            padding: 10px 12px;
-            font-size: 15px;
-            color: var(--dark);
-            border-left: 1px solid var(--input-border);
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-            min-width: 60px;
-            justify-content: center;
-        }
-        
-        .dark-mode .input-with-unit .unit {
-            background: var(--light);
-            color: var(--dark);
-        }
-
-        /* Results Display */
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        @media (min-width: 400px) {
-             .results-grid {
-                 grid-template-columns: 1fr 1fr;
-             }
-        }
-
-        .result-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .result-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--gray);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .result-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--dark);
-        }
-
-        .result-value.profit { color: var(--success); }
-        .result-value.loss { color: var(--danger); }
-        .result-value.risk-reward { color: var(--primary); }
-        .result-value.size { color: var(--secondary); }
-
-        .dashboard-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--light-gray);
-        }
-        
-        .dashboard-label {
-            color: var(--gray);
-            font-weight: 500;
-            font-size: 15px;
-        }
-        
-        .dashboard-value {
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 16px;
-        }
-        
-        .positive {
-            color: var(--success);
-        }
-        
-        .negative {
-            color: var(--danger);
-        }
-
-        .action-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .action-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
         /* Calendar Styles */
         .calendar-header {
             display: flex;
@@ -417,11 +230,16 @@
             color: var(--dark);
         }
         
+        /* NEW: Compact calendar with trades inside boxes */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+            gap: 1px;
             margin-bottom: 20px;
+            background-color: var(--border);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
         }
         
         .calendar-day-header {
@@ -429,27 +247,26 @@
             font-weight: 600;
             color: var(--gray);
             font-size: 14px;
-            padding: 10px 0;
+            padding: 10px 5px;
+            background-color: var(--light-gray);
         }
         
         .calendar-day {
-            aspect-ratio: 1;
             background: var(--card-bg);
-            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             cursor: pointer;
             transition: var(--transition);
-            border: 1px solid var(--border);
             position: relative;
-            padding: 5px;
+            padding: 8px 4px;
+            min-height: 90px;
+            border: none;
         }
         
         .calendar-day:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: var(--light);
         }
         
         .calendar-day.active {
@@ -458,18 +275,24 @@
         }
         
         .calendar-day.other-month {
-            opacity: 0.4;
+            opacity: 0.5;
+            background: var(--light);
+        }
+        
+        .calendar-day.has-trades {
+            background: var(--light);
         }
         
         .day-number {
             font-weight: 700;
             font-size: 16px;
+            margin-bottom: 4px;
         }
         
         .day-pnl {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
-            margin-top: 2px;
+            margin-bottom: 2px;
         }
         
         .day-pnl.positive {
@@ -482,6 +305,15 @@
         
         .calendar-day.active .day-pnl {
             color: white;
+        }
+        
+        .day-trade-count {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .calendar-day.active .day-trade-count {
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Trade List */
@@ -529,12 +361,12 @@
         }
 
         .trade-type.Win {
-            background: rgba(76, 201, 240, 0.15);
+            background: rgba(16, 185, 129, 0.15);
             color: var(--success);
         }
 
         .trade-type.Loss {
-            background: rgba(247, 37, 133, 0.15);
+            background: rgba(239, 68, 68, 0.15);
             color: var(--danger);
         }
 
@@ -551,14 +383,14 @@
         
         .action-btn.delete:hover {
             color: var(--danger);
-            background: rgba(230, 57, 70, 0.1);
+            background: rgba(239, 68, 68, 0.1);
         }
         
         /* Stats Section */
         .stats-section {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            background: var(--primary);
             color: white;
-            border-radius: 12px;
+            border-radius: var(--radius);
             padding: 20px;
             margin-top: 20px;
         }
@@ -602,7 +434,7 @@
         /* Trade Entry Form */
         .trade-entry-form {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: var(--radius);
             padding: 18px;
             margin-bottom: 15px;
             box-shadow: var(--shadow);
@@ -617,6 +449,95 @@
         
         .form-row .form-group {
             flex: 1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .form-input, .form-select {
+            background: var(--input-bg);
+            color: var(--dark);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 16px;
+            width: 100%;
+            transition: var(--transition);
+            appearance: none;
+        }
+        
+        .input-with-unit {
+            display: flex;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            overflow: hidden;
+            width: 100%;
+            background: var(--input-bg);
+        }
+        
+        .input-with-unit input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 12px;
+            font-size: 16px;
+            color: var(--dark);
+            width: 100%;
+        }
+        
+        .input-with-unit .unit {
+            background: var(--light-gray);
+            padding: 10px 12px;
+            font-size: 15px;
+            color: var(--dark);
+            border-left: 1px solid var(--input-border);
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            min-width: 60px;
+            justify-content: center;
+        }
+        
+        .dark-mode .input-with-unit .unit {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .action-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         /* Character Counter for Notes */
@@ -687,6 +608,53 @@
             opacity: 1;
         }
         
+        /* Modal for Day Details */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-title {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .day-trades-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
         /* Utility */
         .hidden { display: none !important; }
         input[type="number"]::-webkit-outer-spin-button,
@@ -695,7 +663,7 @@
 
         /* Responsive breakpoint for mobile devices */
         @media (max-width: 480px) {
-            .calculator-container {
+            .journal-container {
                 height: 100vh;
                 max-height: 100vh;
             }
@@ -704,11 +672,11 @@
                 padding: 0;
             }
             
-            .calculator-header {
+            .journal-header {
                 padding: 15px 10px;
             }
             
-            .calculator-title {
+            .journal-title {
                 font-size: 18px;
             }
             
@@ -725,16 +693,13 @@
                 font-size: 16px;
             }
             
-            .input-card, .trade-entry-form {
+            .trade-entry-form {
                 padding: 15px;
             }
             
-            .result-value {
-                font-size: 24px;
-            }
-            
             .calendar-day {
-                padding: 3px;
+                min-height: 80px;
+                padding: 6px 3px;
             }
             
             .day-number {
@@ -742,6 +707,10 @@
             }
             
             .day-pnl {
+                font-size: 12px;
+            }
+            
+            .day-trade-count {
                 font-size: 10px;
             }
         }
@@ -750,11 +719,11 @@
 </head>
 <body>
 
-<div class="calculator-container">
-    <header class="calculator-header">
-        <h1 class="calculator-title">
+<div class="journal-container">
+    <header class="journal-header">
+        <h1 class="journal-title">
             <i class="fas fa-calendar-alt"></i>
-            Calendar Trader Pro
+            Trading Journal
         </h1>
         <div class="header-actions">
             <button class="header-btn" id="darkModeToggle" aria-label="Toggle Dark Mode">
@@ -772,19 +741,23 @@
             <i class="fas fa-plus-circle"></i>
             <span>Add Trade</span>
         </button>
+        <button class="tab-button" data-tab="stats-tab">
+            <i class="fas fa-chart-bar"></i>
+            <span>Stats</span>
+        </button>
     </div>
 
-    <div class="calculator-content">
+    <div class="journal-content">
         <!-- Calendar Tab -->
         <div class="tab-content active" id="calendar-tab">
             <div class="section">
-                <h2 class="section-title"><i class="fas fa-chart-line"></i> Trading Calendar</h2>
+                <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Trading Calendar</h2>
                 
                 <div class="calendar-header">
                     <button class="calendar-nav" id="prev-month">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <div class="calendar-title" id="current-month">June 2023</div>
+                    <div class="calendar-title" id="current-month">February 2023</div>
                     <button class="calendar-nav" id="next-month">
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -792,54 +765,6 @@
                 
                 <div class="calendar-grid" id="calendar-days">
                     <!-- Calendar days will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Performance Statistics</h2>
-                
-                <div class="results-grid">
-                    <div class="result-card">
-                        <div class="result-title">Today</div>
-                        <div class="result-value profit" id="today-pnl">+$108</div>
-                    </div>
-                    <div class="result-card">
-                        <div class="result-title">This Week</div>
-                        <div class="result-value profit" id="week-pnl">+$324</div>
-                    </div>
-                    <div class="result-card">
-                        <div class="result-title">This Month</div>
-                        <div class="result-value profit" id="month-pnl">+$972</div>
-                    </div>
-                    <div class="result-card">
-                        <div class="result-title">This Year</div>
-                        <div class="result-value profit" id="year-pnl">+$5,832</div>
-                    </div>
-                </div>
-
-                <div class="stats-section">
-                    <div class="stats-title">Performance Metrics</div>
-                    <div class="stats-grid">
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">74.3%</div>
-                            <div class="stats-stat-label">Win Rate</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">2.8</div>
-                            <div class="stats-stat-label">Avg R:R</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">$124</div>
-                            <div class="stats-stat-label">Avg Win</div>
-                        </div>
-                        <div class="stats-stat">
-                            <div class="stats-stat-value">-$45</div>
-                            <div class="stats-stat-label">Avg Loss</div>
-                        </div>
-                    </div>
-                    <div class="stats-explanation">
-                        Based on your last 30 trades
-                    </div>
                 </div>
             </div>
         </div>
@@ -964,13 +889,84 @@
                 </div>
             </div>
         </div>
+
+        <!-- Stats Tab -->
+        <div class="tab-content" id="stats-tab">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Trading Statistics</h2>
+                
+                <div class="stats-section">
+                    <div class="stats-title">Performance Metrics</div>
+                    <div class="stats-grid">
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">74.3%</div>
+                            <div class="stats-stat-label">Win Rate</div>
+                        </div>
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">2.8</div>
+                            <div class="stats-stat-label">Avg R:R</div>
+                        </div>
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">$124</div>
+                            <div class="stats-stat-label">Avg Win</div>
+                        </div>
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">-$45</div>
+                            <div class="stats-stat-label">Avg Loss</div>
+                        </div>
+                    </div>
+                    <div class="stats-explanation">
+                        Based on your last 30 trades
+                    </div>
+                </div>
+
+                <div class="stats-section" style="background: var(--success);">
+                    <div class="stats-title">Monthly Performance</div>
+                    <div class="stats-grid">
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">$24.5K</div>
+                            <div class="stats-stat-label">Total PnL</div>
+                        </div>
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">142</div>
+                            <div class="stats-stat-label">Total Trades</div>
+                        </div>
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">$172</div>
+                            <div class="stats-stat-label">Avg PnL/Day</div>
+                        </div>
+                        <div class="stats-stat">
+                            <div class="stats-stat-value">18</div>
+                            <div class="stats-stat-label">Trading Days</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Day Details Modal -->
+<div id="day-details-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3 class="modal-title" id="modal-date-title">Trades for February 1, 2023</h3>
+        <div class="day-trades-list" id="day-trades-list">
+            <!-- Day trades will be populated here -->
+        </div>
+        <div id="no-trades-for-day" style="text-align: center; padding: 20px; color: var(--gray);">
+            No trades for this day
+        </div>
+        <button class="action-button" onclick="openAddTradeForSelectedDay()" style="margin-top: 15px;">
+            <i class="fas fa-plus-circle"></i> Add Trade to This Day
+        </button>
     </div>
 </div>
 
 <script>
-    // Initialize the calculator when the page loads
+    // Initialize the journal when the page loads
     document.addEventListener('DOMContentLoaded', function() {
-        initializeCalculator();
+        initializeJournal();
         setupEventListeners();
         loadTradeHistory();
         generateCalendar();
@@ -981,9 +977,15 @@
         
         // Initialize notes character counter
         updateNotesCounter();
+        
+        // Setup modal functionality
+        setupModal();
+        
+        // Load sample data for February 2023 (as shown in the image)
+        loadSampleData();
     });
 
-    function initializeCalculator() {
+    function initializeJournal() {
         // Set up dark mode toggle
         setupDarkModeToggle();
         
@@ -1004,6 +1006,23 @@
         
         // Add event listener for notes character counter
         document.getElementById('trade-notes').addEventListener('input', updateNotesCounter);
+    }
+    
+    function setupModal() {
+        const modal = document.getElementById('day-details-modal');
+        const closeBtn = document.querySelector('.close-modal');
+        
+        // Close modal when clicking the X
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     }
 
     // Update notes character counter
@@ -1107,7 +1126,8 @@
     }
 
     // Calendar functionality
-    let currentDate = new Date();
+    let currentDate = new Date(2023, 1, 1); // February 2023
+    let selectedDayForTrade = null;
     
     function setupCalendarNavigation() {
         document.getElementById('prev-month').addEventListener('click', function() {
@@ -1143,7 +1163,7 @@
         let startingDay = firstDay.getDay();
         
         // Add day headers
-        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
         dayNames.forEach(day => {
             const dayHeader = document.createElement('div');
             dayHeader.className = 'calendar-day-header';
@@ -1152,15 +1172,27 @@
         });
         
         // Add empty cells for days before the first day of the month
-        for (let i = 0; i < startingDay; i++) {
+        // Adjust starting day to match Monday as first day of week
+        let adjustedStartingDay = (startingDay + 6) % 7;
+        for (let i = 0; i < adjustedStartingDay; i++) {
             const emptyDay = document.createElement('div');
             emptyDay.className = 'calendar-day other-month';
+            
+            // Calculate the day number for previous month
+            const prevMonthLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
+            const dayNumber = prevMonthLastDay - adjustedStartingDay + i + 1;
+            
+            const dayNumElement = document.createElement('div');
+            dayNumElement.className = 'day-number';
+            dayNumElement.textContent = dayNumber;
+            emptyDay.appendChild(dayNumElement);
+            
             calendarDays.appendChild(emptyDay);
         }
         
         // Add days of the month
         const today = new Date();
-        const trades = JSON.parse(localStorage.getItem('calendarTrades')) || [];
+        const trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
         
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = document.createElement('div');
@@ -1183,11 +1215,20 @@
             const dayTrades = trades.filter(trade => trade.date === dateStr);
             const dayPnL = dayTrades.reduce((sum, trade) => sum + parseFloat(trade.pnl), 0);
             
+            // Add PnL if there are trades
             if (dayTrades.length > 0) {
                 const pnlElement = document.createElement('div');
                 pnlElement.className = `day-pnl ${dayPnL >= 0 ? 'positive' : 'negative'}`;
-                pnlElement.textContent = dayPnL >= 0 ? `+$${dayPnL}` : `-$${Math.abs(dayPnL)}`;
+                pnlElement.textContent = dayPnL >= 0 ? `$${dayPnL.toFixed(2)}` : `-$${Math.abs(dayPnL).toFixed(2)}`;
                 dayElement.appendChild(pnlElement);
+                
+                // Add trade count
+                const tradeCount = document.createElement('div');
+                tradeCount.className = 'day-trade-count';
+                tradeCount.textContent = `${dayTrades.length} trade${dayTrades.length !== 1 ? 's' : ''}`;
+                dayElement.appendChild(tradeCount);
+                
+                dayElement.classList.add('has-trades');
             }
             
             // Add click event to view trades for this day
@@ -1198,39 +1239,107 @@
             calendarDays.appendChild(dayElement);
         }
         
-        // Update statistics
-        updateStatistics();
+        // Add empty cells for days after the last day of the month
+        const totalCells = 42; // 6 rows x 7 days
+        const filledCells = adjustedStartingDay + daysInMonth;
+        const remainingCells = totalCells - filledCells;
+        
+        for (let i = 0; i < remainingCells; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day other-month';
+            
+            const dayNumElement = document.createElement('div');
+            dayNumElement.className = 'day-number';
+            dayNumElement.textContent = i + 1;
+            emptyDay.appendChild(dayNumElement);
+            
+            calendarDays.appendChild(emptyDay);
+        }
     }
     
     function viewDayTrades(date, day) {
-        alert(`Viewing trades for ${date}. This would typically open a modal or navigate to a detail view.`);
-        // In a real implementation, this would show a modal with trades for the selected day
+        const modal = document.getElementById('day-details-modal');
+        const modalTitle = document.getElementById('modal-date-title');
+        const tradesList = document.getElementById('day-trades-list');
+        const noTradesMsg = document.getElementById('no-trades-for-day');
+        
+        // Store the selected day for adding trades
+        selectedDayForTrade = date;
+        
+        // Format date for display
+        const dateObj = new Date(date);
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        const displayDate = `${monthNames[dateObj.getMonth()]} ${day}, ${dateObj.getFullYear()}`;
+        
+        modalTitle.textContent = `Trades for ${displayDate}`;
+        
+        // Get trades for this day
+        const trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
+        const dayTrades = trades.filter(trade => trade.date === date);
+        
+        // Clear existing list
+        tradesList.innerHTML = '';
+        
+        if (dayTrades.length === 0) {
+            noTradesMsg.style.display = 'block';
+            tradesList.style.display = 'none';
+        } else {
+            noTradesMsg.style.display = 'none';
+            tradesList.style.display = 'block';
+            
+            // Add trades to list
+            dayTrades.forEach(trade => {
+                const tradeItem = document.createElement('div');
+                tradeItem.className = 'trade-item';
+                
+                const tradeType = document.createElement('div');
+                tradeType.className = `trade-type ${trade.pnl >= 0 ? 'Win' : 'Loss'}`;
+                tradeType.textContent = trade.pnl >= 0 ? 'W' : 'L';
+                
+                const tradeDetails = document.createElement('div');
+                tradeDetails.className = 'trade-details';
+                
+                const tradeAmount = document.createElement('div');
+                tradeAmount.className = 'trade-amount';
+                tradeAmount.textContent = `$${Math.abs(trade.pnl).toFixed(2)} ${trade.pnl >= 0 ? 'Profit' : 'Loss'}`;
+                tradeAmount.classList.add(trade.pnl >= 0 ? 'positive' : 'negative');
+                
+                const tradeInfo = document.createElement('div');
+                tradeInfo.className = 'trade-info';
+                tradeInfo.textContent = `${trade.symbol} ${trade.direction} • ${trade.contracts} contracts`;
+                
+                tradeDetails.appendChild(tradeAmount);
+                tradeDetails.appendChild(tradeInfo);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn delete';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    deleteTradeById(trade.id);
+                    modal.style.display = 'none';
+                });
+                
+                tradeItem.appendChild(tradeType);
+                tradeItem.appendChild(tradeDetails);
+                tradeItem.appendChild(deleteBtn);
+                
+                tradesList.appendChild(tradeItem);
+            });
+        }
+        
+        // Show the modal
+        modal.style.display = 'flex';
     }
     
-    function updateStatistics() {
-        const trades = JSON.parse(localStorage.getItem('calendarTrades')) || [];
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Calculate today's PnL
-        const todayTrades = trades.filter(trade => trade.date === today);
-        const todayPnL = todayTrades.reduce((sum, trade) => sum + parseFloat(trade.pnl), 0);
-        document.getElementById('today-pnl').textContent = todayPnL >= 0 ? `+$${todayPnL}` : `-$${Math.abs(todayPnL)}`;
-        document.getElementById('today-pnl').className = `result-value ${todayPnL >= 0 ? 'profit' : 'loss'}`;
-        
-        // Calculate week's PnL (simplified)
-        const weekPnL = todayPnL * 3; // Simplified calculation
-        document.getElementById('week-pnl').textContent = weekPnL >= 0 ? `+$${weekPnL}` : `-$${Math.abs(weekPnL)}`;
-        document.getElementById('week-pnl').className = `result-value ${weekPnL >= 0 ? 'profit' : 'loss'}`;
-        
-        // Calculate month's PnL (simplified)
-        const monthPnL = weekPnL * 3; // Simplified calculation
-        document.getElementById('month-pnl').textContent = monthPnL >= 0 ? `+$${monthPnL}` : `-$${Math.abs(monthPnL)}`;
-        document.getElementById('month-pnl').className = `result-value ${monthPnL >= 0 ? 'profit' : 'loss'}`;
-        
-        // Calculate year's PnL (simplified)
-        const yearPnL = monthPnL * 6; // Simplified calculation
-        document.getElementById('year-pnl').textContent = yearPnL >= 0 ? `+$${yearPnL}` : `-$${Math.abs(yearPnL)}`;
-        document.getElementById('year-pnl').className = `result-value ${yearPnL >= 0 ? 'profit' : 'loss'}`;
+    function openAddTradeForSelectedDay() {
+        if (selectedDayForTrade) {
+            document.getElementById('trade-date').value = selectedDayForTrade;
+            document.querySelector('.tab-button[data-tab="add-trade-tab"]').click();
+            document.getElementById('day-details-modal').style.display = 'none';
+        }
     }
 
     function saveTrade() {
@@ -1269,9 +1378,9 @@
         };
         
         // Save to localStorage
-        let trades = JSON.parse(localStorage.getItem('calendarTrades')) || [];
+        let trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
         trades.push(trade);
-        localStorage.setItem('calendarTrades', JSON.stringify(trades));
+        localStorage.setItem('journalTrades', JSON.stringify(trades));
         
         // Refresh calendar and trade list
         generateCalendar();
@@ -1293,7 +1402,7 @@
         const noTradesMessage = document.getElementById('no-trades-message');
         
         // Get trades from localStorage
-        const trades = JSON.parse(localStorage.getItem('calendarTrades')) || [];
+        const trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
         
         // Clear existing list
         tradeList.innerHTML = '';
@@ -1346,16 +1455,104 @@
 
     function deleteTrade(index) {
         // Get trades from localStorage
-        let trades = JSON.parse(localStorage.getItem('calendarTrades')) || [];
+        let trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
         
         // Remove trade at index
         trades.splice(index, 1);
         
         // Save updated trades
-        localStorage.setItem('calendarTrades', JSON.stringify(trades));
+        localStorage.setItem('journalTrades', JSON.stringify(trades));
         
         // Update display
         loadTradeHistory();
+        generateCalendar();
+    }
+    
+    function deleteTradeById(id) {
+        // Get trades from localStorage
+        let trades = JSON.parse(localStorage.getItem('journalTrades')) || [];
+        
+        // Find index of trade with given id
+        const index = trades.findIndex(trade => trade.id === id);
+        
+        if (index !== -1) {
+            // Remove trade at index
+            trades.splice(index, 1);
+            
+            // Save updated trades
+            localStorage.setItem('journalTrades', JSON.stringify(trades));
+            
+            // Update display
+            loadTradeHistory();
+            generateCalendar();
+        }
+    }
+    
+    // Load sample data for February 2023 (as shown in the image)
+    function loadSampleData() {
+        // Check if we already have data
+        if (localStorage.getItem('journalTrades')) return;
+        
+        const sampleTrades = [
+            { date: '2023-02-01', pnl: 71.32, trades: 1 },
+            { date: '2023-02-02', pnl: 0, trades: 0 },
+            { date: '2023-02-03', pnl: 19.22, trades: 2 },
+            { date: '2023-02-04', pnl: 89.35, trades: 1 },
+            { date: '2023-02-05', pnl: 0, trades: 0 },
+            { date: '2023-02-06', pnl: -932.10, trades: 1 },
+            { date: '2023-02-07', pnl: 0, trades: 0 },
+            { date: '2023-02-08', pnl: 0, trades: 0 },
+            { date: '2023-02-09', pnl: 298.32, trades: 1 },
+            { date: '2023-02-10', pnl: -193.12, trades: 1 },
+            { date: '2023-02-11', pnl: 0, trades: 0 },
+            { date: '2023-02-12', pnl: 0, trades: 0 },
+            { date: '2023-02-13', pnl: 50.00, trades: 1 },
+            { date: '2023-02-14', pnl: 250.58, trades: 1 },
+            { date: '2023-02-15', pnl: -112.74, trades: 1 },
+            { date: '2023-02-16', pnl: 0, trades: 0 },
+            { date: '2023-02-17', pnl: 23.91, trades: 2 },
+            { date: '2023-02-18', pnl: 0, trades: 0 },
+            { date: '2023-02-19', pnl: 0, trades: 0 },
+            { date: '2023-02-20', pnl: 0, trades: 1 },
+            { date: '2023-02-21', pnl: 238.81, trades: 2 },
+            { date: '2023-02-22', pnl: -190.23, trades: 1 },
+            { date: '2023-02-23', pnl: 289.00, trades: 1 },
+            { date: '2023-02-24', pnl: 0, trades: 0 },
+            { date: '2023-02-25', pnl: 0, trades: 0 },
+            { date: '2023-02-26', pnl: 0, trades: 0 },
+            { date: '2023-02-27', pnl: 0, trades: 0 },
+            { date: '2023-02-28', pnl: 0, trades: 0 }
+        ];
+        
+        const trades = [];
+        
+        sampleTrades.forEach(sample => {
+            for (let i = 0; i < sample.trades; i++) {
+                // Create a realistic trade based on the sample data
+                const pnlPerTrade = sample.trades > 0 ? sample.pnl / sample.trades : 0;
+                const direction = pnlPerTrade >= 0 ? 'Long' : 'Short';
+                
+                trades.push({
+                    id: Date.now() + i,
+                    date: sample.date,
+                    symbol: ['ES', 'NQ', 'YM', 'CL', 'GC'][Math.floor(Math.random() * 5)],
+                    direction: direction,
+                    contracts: Math.floor(Math.random() * 3) + 1,
+                    entry: 4500 + Math.random() * 100,
+                    exit: 4500 + Math.random() * 100 + (direction === 'Long' ? 5 : -5),
+                    stop: 4495,
+                    target: 4515,
+                    commission: 2.50,
+                    fees: 1.25,
+                    pnl: pnlPerTrade,
+                    pnlPercent: (pnlPerTrade / 1200) * 100,
+                    notes: 'Sample trade data',
+                    timestamp: new Date(sample.date).toISOString()
+                });
+            }
+        });
+        
+        localStorage.setItem('journalTrades', JSON.stringify(trades));
         generateCalendar();
     }
 </script>
